@@ -2,12 +2,12 @@ import './style.scss'
 import  {useState}  from 'react';
 import Board from './components/Board'
 import {calculateWinner} from './calculateWinner'
+import StatusMessage from './components/StatusMessage';
 function App() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [isXnext, setIsXnext] = useState(false)
-  const nextPlayer = isXnext ? 'X' :'O'
   const winner = calculateWinner(squares)
-  const statusMessage = winner ? `the Winner is ${winner}`: `Next Player is ${nextPlayer}`
+  
   console.log(winner);
   const handleSquareClick = clickedPosition => {
 
@@ -32,7 +32,7 @@ function App() {
   return (
    
       <div className='app'>
-        <h2>{statusMessage}</h2>
+        <StatusMessage winner={winner} isXnext={isXnext} squares={squares}/>
       <Board squares={squares} handleSquareClick={handleSquareClick}/>
     
       </div>
