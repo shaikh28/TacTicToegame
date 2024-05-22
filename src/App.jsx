@@ -1,44 +1,74 @@
-import './style.scss'
-import  {useState}  from 'react';
-import Board from './components/Board'
-import {calculateWinner} from './calculateWinner'
-import StatusMessage from './components/StatusMessage';
-function App() {
-  const [squares, setSquares] = useState(Array(9).fill(null));
-  const [isXnext, setIsXnext] = useState(false)
-  const winner = calculateWinner(squares)
-  
-  console.log(winner);
-  const handleSquareClick = clickedPosition => {
+import "./style.scss";
+import { useState } from "react";
+import Board from "./components/Board";
+import { calculateWinner } from "./calculateWinner";
+import StatusMessage from "./components/StatusMessage";
+import History from "./components/History";
 
-    if(squares[clickedPosition] || winner){
-      return
+const NEW_GAME = [{ squares: Array(9).fill(null), isXnext: false }];
+
+function App() {
+  const [history, setHistory] = useState(NEW_GAME);
+  const [currentmove, setCurrentMove] = useState(0);
+  const gamingBoard = history[currentmove];
+
+  const winner = calculateWinner(gamingBoard.squares);
+
+  console.log(winner);
+  const handleSquareClick = (clickedPosition) => {
+    if (gamingBoard.squares[clickedPosition] || winner) {
+      return;
     }
 
-    setSquares(currentSquare => {
-      return currentSquare.map((squareValue, position) => {
-        console.log('clicked');
-        if (clickedPosition === position) {
-          return isXnext ? "X" : 'O';
-         
-        }
+    setHistory((currentHistory) => {
+      const isTraversing = currentmove + 1 !== currentHistory.length;
+      const lastGamingState = isTraversing
+        ? currentHistory[currentmove]
+        : currentHistory[currentHistory.length - 1];
 
-        return squareValue;
+      const nextSquareState = lastGamingState.squares.map(
+        (squareValue, position) => {
+          if (clickedPosition === position) {
+            return lastGamingState.isXnext ? "X" : "O";
+          }
+          return squareValue;
+        }
+      );
+
+      const base = isTraversing
+        ? currentHistory.slice(0, currentHistory.indexOf(lastGamingState + 1))
+        : currentHistory;
+
+      return base.concat({
+        squares: nextSquareState,
+        isXnext: !lastGamingState.isXnext,
       });
     });
 
-    setIsXnext(currentIsXnext=> !currentIsXnext)
+    setCurrentMove((move) => move + 1);
+  };
+
+  const moveTo = (move) => {
+    currentmove(move);
+  };
+
+  const onNewGameStart = () => {
+    setHistory(NEW_GAME);
+    setCurrentMove(0);
   };
   return (
-   
-      <div className='app'>
-        <StatusMessage winner={winner} isXnext={isXnext} squares={squares}/>
-      <Board squares={squares} handleSquareClick={handleSquareClick}/>
-    
-      </div>
-     
-    
-  )
+    <div className="app">
+      <StatusMessage winner={winner} gamingBoard={gamingBoard} />
+      <Board
+        squares={gamingBoard.squares}
+        handleSquareClick={handleSquareClick}
+      />
+      <button type="button" onClick={onNewGameStart} className={`btn-reset ${ winner ? 'active' : ''}`}>
+        Start New Game
+      </button>
+      <History history={history} moveTo={moveTo} currentmove={currentmove} />
+    </div>
+  );
 }
 
-export default App
+export default App;

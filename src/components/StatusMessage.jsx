@@ -1,7 +1,8 @@
 import React from "react";
 
-const StatusMessage = ({ winner, isXnext, squares }) => {
-  const noMovesLeft = squares.every((squareValue) => squareValue !== null);
+const StatusMessage = ({ winner, gamingBoard}) => {
+  const {squares,isXnext} = gamingBoard
+  const noMovesLeft = squares.every(squareValue => squareValue !== null);
   const nextPlayer = isXnext ? "X" : "O";
   const renderStatusMessage = () => {
     if (winner) {
@@ -15,7 +16,7 @@ const StatusMessage = ({ winner, isXnext, squares }) => {
       );
     }
     if (!winner && noMovesLeft) {
-      return (
+      return ( 
         <>
           <span className="text-orange">O</span> and {' '}
           <span className="text-green">X</span> its tied
